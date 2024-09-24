@@ -1,36 +1,59 @@
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-  "title": "Total Arrivals in Malaysia by Country From 2020-2024",
+  "title": "Normalized Arrivals in Malaysia by Country Per 1,000 People (2020-2024)",
   "width": 800,
   "height": 400,
   "projection": {"type": "equalEarth"},
-  "data": {
-    "url": "https://raw.githubusercontent.com/drewpri411/FIT3179_W9_HW/main/js/ne_110m_new.topojson",
-    "format": {"type": "topojson", "feature": "ne_110m_admin_0_countries"}
-  },
-  "transform": [
+  "layer": [
     {
-      "lookup": "properties.ISO_A3",
-      "from": {
-        "data": {
-          "url": "https://raw.githubusercontent.com/drewpri411/FIT3179_W9_HW/main/data/arrivals.csv"
+      "data": {
+        "url": "https://raw.githubusercontent.com/drewpri411/FIT3179_W9_HW/main/js/ne_110m_new.topojson",
+        "format": {"type": "topojson", "feature": "ne_110m_admin_0_countries"}
+      },
+      "transform": [
+        {
+          "lookup": "properties.ISO_A3",
+          "from": {
+            "data": {
+              "url": "https://raw.githubusercontent.com/drewpri411/FIT3179_W9_HW/main/data/normalized_arrivals.csv"
+            },
+            "key": "country", 
+            "fields": ["ArrivalsPer1000"]
+          }
         },
-        "key": "country", 
-        "fields": ["arrivals"]
+        {"calculate": "datum.ArrivalsPer1000 + 0.1", "as": "Normalized Arrivals Per 1000"}
+      ],
+      "mark": {"type": "geoshape"},
+      "encoding": {
+        "color": {
+          "field": "Normalized Arrivals Per 1000",
+          "type": "quantitative",
+          "scale": {"type": "log"}
+        },
+        "tooltip": [
+          {"field": "properties.ISO_A3", "type": "nominal", "title": "Country"},
+          {"field": "Normalized Arrivals Per 1000", "type": "quantitative", "title": "Arrivals Per 1000 People"}
+        ]
       }
     },
-    {"calculate": "datum.arrivals + 0.1", "as": "Total Arrivals"}
-  ],
-  "mark": {"type": "geoshape"},
-  "encoding": {
-    "color": {
-      "field": "Total Arrivals",
-      "type": "quantitative",
-      "scale": {"type": "log"}
+    {
+      "data": {
+        "url": "https://raw.githubusercontent.com/drewpri411/FIT3179_W9_HW/main/js/ne_110m_new.topojson",
+        "format": {"type": "topojson", "feature": "ne_110m_graticules_30"}
+      },
+      "mark": {
+        "type": "geoshape",
+        "stroke": "grey", 
+        "strokeWidth": 0.5,
+        "fill": null
+      }
     },
-    "tooltip": [
-      {"field": "properties.ISO_A3", "type": "nominal", "title": "Country"},
-      {"field": "Total Arrivals", "type": "quantitative", "title": "Arrivals"}
-    ]
-  }
+    {
+      "data": {
+        "url": "https://raw.githubusercontent.com/FIT3179/Vega-Lite/main/7_others/oceans.topojson",
+        "format": {"type": "topojson", "feature": "oceans"}
+      },
+      "mark": {"type": "geoshape", "fill": "skyblue"}
+    }
+  ]
 }
